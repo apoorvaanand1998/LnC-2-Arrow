@@ -27,7 +27,7 @@ foldProgram (program,
             (d1, d2, d3),
             alt,
             (pt1, pt2, pt3, pt4, pt5, pt6)) = fp -- I honestly don't know how I got here                                                            
-    where                                        -- pattern matching and type-checking ftw?
+    where
         fp rs = program $ map fr rs
 
         fr (s, cs) = rule (s, map fc cs)
@@ -67,7 +67,7 @@ checkProgram p =
 
 -- generalized because the first three rules have similar ideas
 -- take the Identifier strings from Commands and concatenate them
--- these are the used strings
+-- these are the "used" strings
 -- take the fst of Rule for named identifiers
 -- check rules 
 rulesAlgebra :: ([(String, [String])] -> Bool, [(String, [String])] -> [String])

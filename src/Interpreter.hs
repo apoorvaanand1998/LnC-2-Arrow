@@ -3,7 +3,7 @@ module Interpreter where
 import ParseLib.Abstract
 import Prelude hiding ((<$), ($>), (<*), (*>), sequence)
 
-import Data.Map (Map)
+import Data.Map (Map, fromList, toList, findMax, findWithDefault)
 import qualified Data.Map as L
 
 import Data.Char (isSpace)
@@ -15,9 +15,9 @@ import Model
 import Algebra
 
 
-data Contents  =  Empty | Lambda | Debris | Asteroid | Boundary
+data Contents  =  Empty | Lambda | Debris | Asteroid | Boundary deriving (Eq, Ord)
 
-type Size      =  Int
+type Size      =  Int 
 type Pos       =  (Int, Int)
 type Space     =  Map Pos Contents
 
@@ -54,7 +54,15 @@ contentsTable =  [ (Empty   , '.' )
 
 -- Exercise 7
 printSpace :: Space -> String
-printSpace = undefined
+printSpace s = 
+  let
+    fm = findMax s
+    nr = fst (fst fm)
+    nc = snd (fst fm)
+    nm = fromList contentsTable
+    fd k = findWithDefault '.' k nm
+  in
+     foldr (\((r, c), ct) s -> if c == nc then fd ct:'\n':s else fd ct:s) "" (toList s)
 
 
 -- These three should be defined by you
@@ -79,4 +87,16 @@ toEnvironment = undefined
 step :: Environment -> ArrowState -> Step
 step = undefined
 
+-- test
+testSpace :: FilePath -> IO Space
+testSpace f = do
+  s <- readFile f
+  let space = parse parseSpace s
+  if null space 
+  then return L.empty
+  else return (fst (head space))
 
+testPrintSpace :: FilePath -> IO ()
+testPrintSpace f = do
+  s <- testSpace f
+  print $ printSpace s
