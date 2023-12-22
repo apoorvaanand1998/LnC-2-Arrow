@@ -1,9 +1,9 @@
 module Interpreter where
 
 import ParseLib.Abstract
-import Prelude hiding ((<$), ($>), (<*), (*>), sequence)
+import Prelude hiding ((<$), ($>), (<*), (*>), sequence, lookup)
 
-import Data.Map (Map, fromList, toList, findMax, findWithDefault, adjust, (!))
+import Data.Map (Map, lookup, fromList, toList, findMax, findWithDefault, adjust, (!))
 import qualified Data.Map as L
 
 import Data.Char (isSpace)
@@ -15,7 +15,7 @@ import Model
 import Algebra
 
 
-data Contents  =  Empty | Lambda | Debris | Asteroid | Boundary deriving (Eq, Ord)
+data Contents  =  Empty | Lambda | Debris | Asteroid | Boundary deriving (Eq, Ord, Show)
 
 type Size      =  Int 
 type Pos       =  (Int, Int)
@@ -69,7 +69,7 @@ printSpace s =
 -- These three should be defined by you
 type Ident = String
 type Commands = [Cmd]
-data Heading = North | South | West | East deriving (Eq, Show)
+data Heading = North | South | West | East deriving (Eq, Ord, Show, Read)
 
 type Environment = Map Ident Commands
 
@@ -104,10 +104,12 @@ step e as@(ArrowState sp p h s) = case s of
     MarkC -> Ok (ArrowState (markSp p sp) p h cs)
     NothingC -> Ok (ArrowState sp p h cs)
     TurnC d -> Ok (ArrowState sp p (turnH d h) cs)
-    CaseC d as -> Ok (ArrowState sp p h
-                     (whichCmds (sensor d p h sp) as ++ cs))
-    IdentC is -> Ok (ArrowState sp p h (e ! is ++ cs))
+    CaseC d as -> maybe (Fail "Case failed : Pattern Match") (resCase cs) (wCmds d as)
+    IdentC is -> maybe (Fail "Lookup Failed : Unknown Rule") (resCase cs) (lookup is e)
   where
+    wCmds d = whichCmds (sensor d p h sp)
+    resCase cs x = Ok (ArrowState sp p h (x++cs))
+
     fwd :: Pos -> Heading -> Pos
     fwd (x, y) North = (x-1, y)
     fwd (x, y) South = (x+1, y)
@@ -141,16 +143,16 @@ step e as@(ArrowState sp p h s) = case s of
       East  -> South
       South -> West
       West  -> North
-    -- i guess you could do these also by putting the direction in a list
+    -- i guess you could also do these by putting the headings in a list
     -- and doing some modulo magic
 
     sensor :: Dir -> Pos -> Heading -> Space -> Contents
     sensor d p h = content (fwd p (turnH d h))
 
-    whichCmds :: Contents -> [Alt] -> Commands
-    whichCmds c []     = error "Did you check your program?"
+    whichCmds :: Contents -> [Alt] -> Maybe Commands
+    whichCmds c []     = Nothing
     whichCmds c (a:as) = if patCon (fst a) c
-                         then snd a
+                         then Just $ snd a
                          else whichCmds c as
 
     patCon :: Pat -> Contents -> Bool

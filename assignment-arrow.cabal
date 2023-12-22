@@ -27,6 +27,7 @@ library arrow-lib
                       , Interpreter
                       , Lexer
                       , Parser
+                      , Main
 
   build-depends:       base >=4.14,
                        containers,

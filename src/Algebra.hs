@@ -26,7 +26,7 @@ foldProgram (program,
             (c1, c2, c3, c4, c5, c6, c7),
             (d1, d2, d3),
             alt,
-            (pt1, pt2, pt3, pt4, pt5, pt6)) = fp -- I honestly don't know how I got here                                                            
+            (pt1, pt2, pt3, pt4, pt5, pt6)) = fp -- i love types
     where
         fp rs = program $ map fr rs
 
