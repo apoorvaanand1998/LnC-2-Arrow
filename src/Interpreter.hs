@@ -61,8 +61,9 @@ printSpace s =
     nc = snd (fst fm)
     nm = fromList contentsTable
     fd k = findWithDefault '.' k nm
+    rc = show (nr, nc) ++ "\n"
   in
-     foldr (\((r, c), ct) s -> if c == nc then fd ct:'\n':s else fd ct:s) "" (toList s)
+    rc ++ foldr (\((r, c), ct) s -> if c == nc then fd ct:'\n':s else fd ct:s) "" (toList s)
 
 
 -- These three should be defined by you
