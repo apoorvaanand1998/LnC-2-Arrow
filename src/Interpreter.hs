@@ -140,6 +140,8 @@ step e as@(ArrowState sp p h s) = case s of
       East  -> South
       South -> West
       West  -> North
+    -- i guess you could do these also by putting the direction in a list
+    -- and doing some modulo magic
 
     sensor :: Dir -> Pos -> Heading -> Space -> Contents
     sensor d p h = content (fwd p (turnH d h))
