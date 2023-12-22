@@ -66,9 +66,9 @@ printSpace s =
 
 
 -- These three should be defined by you
-type Ident = ()
-type Commands = ()
-type Heading = ()
+type Ident = String
+type Commands = [Cmd]
+type Heading = Dir
 
 type Environment = Map Ident Commands
 
@@ -81,7 +81,12 @@ data Step =  Done  Space Pos Heading
 
 -- | Exercise 8
 toEnvironment :: String -> Environment
-toEnvironment = undefined
+toEnvironment s = if checkProgram p
+                  then m
+                  else error "Yo, your program sux" -- Throwing an error as recommended by David
+  where
+    p = parser $ alexScanTokens s
+    m = fromList p
 
 -- | Exercise 9
 step :: Environment -> ArrowState -> Step
@@ -99,4 +104,4 @@ testSpace f = do
 testPrintSpace :: FilePath -> IO ()
 testPrintSpace f = do
   s <- testSpace f
-  print $ printSpace s
+  putStrLn $ printSpace s
