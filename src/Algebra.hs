@@ -148,3 +148,8 @@ usUsed x  = sort $ nub $ concatMap snd x
 
 testParser :: String -> Program
 testParser s = parser $ alexScanTokens s
+
+testP :: FilePath -> IO Program
+testP f = do
+    s <- readFile f
+    return $ testParser s

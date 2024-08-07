@@ -17,7 +17,7 @@ import Algebra
 
 data Contents  =  Empty | Lambda | Debris | Asteroid | Boundary deriving (Eq, Ord, Show)
 
-type Size      =  Int 
+type Size      =  Int
 type Pos       =  (Int, Int)
 type Space     =  Map Pos Contents
 
@@ -54,7 +54,7 @@ contentsTable =  [ (Empty   , '.' )
 
 -- Exercise 7
 printSpace :: Space -> String
-printSpace s = 
+printSpace s =
   let
     fm = findMax s
     nr = fst (fst fm)
@@ -74,7 +74,12 @@ data Heading = North | South | West | East deriving (Eq, Ord, Show, Read)
 type Environment = Map Ident Commands
 
 type Stack       =  Commands
-data ArrowState  =  ArrowState Space Pos Heading Stack
+data ArrowState  =
+  ArrowState
+    { space   :: Space,
+      posR    :: Pos,
+      heading :: Heading,
+      stack   :: Stack }
 
 data Step =  Done  Space Pos Heading
           |  Ok    ArrowState
@@ -104,7 +109,9 @@ step e as@(ArrowState sp p h s) = case s of
     MarkC -> Ok (ArrowState (markSp p sp) p h cs)
     NothingC -> Ok (ArrowState sp p h cs)
     TurnC d -> Ok (ArrowState sp p (turnH d h) cs)
-    CaseC d as -> maybe (Fail "Case failed : Pattern Match") (resCase cs) (wCmds d as)
+    CaseC d as -> if null (wCmds d as)
+                  then Fail "Case failed : Pattern Match"
+                  else resCase cs (wCmds d as)
     IdentC is -> maybe (Fail "Lookup Failed : Unknown Rule") (resCase cs) (lookup is e)
   where
     wCmds d = whichCmds (sensor d p h sp)
@@ -149,19 +156,19 @@ step e as@(ArrowState sp p h s) = case s of
     sensor :: Dir -> Pos -> Heading -> Space -> Contents
     sensor d p h = content (fwd p (turnH d h))
 
-    whichCmds :: Contents -> [Alt] -> Maybe Commands
-    whichCmds c []     = Nothing
+    whichCmds :: Contents -> [Alt] -> Commands
+    whichCmds c []     = []
     whichCmds c (a:as) = if patCon (fst a) c
-                         then Just $ snd a
+                         then snd a
                          else whichCmds c as
 
     patCon :: Pat -> Contents -> Bool
-    patCon AllP      _        = True
     patCon EmptyP    Empty    = True
     patCon LambdaP   Lambda   = True
     patCon DebrisP   Debris   = True
     patCon AsteroidP Asteroid = True
     patCon BoundaryP Boundary = True
+    patCon AllP      _        = True
     patCon _         _        = False
 
 -- test
@@ -169,7 +176,7 @@ testSpace :: FilePath -> IO Space
 testSpace f = do
   s <- readFile f
   let space = parse parseSpace s
-  if null space 
+  if null space
   then return L.empty
   else return (fst (head space))
 
