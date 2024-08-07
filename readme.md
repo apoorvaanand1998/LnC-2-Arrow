@@ -1,5 +1,5 @@
 # Arrow
-A framework for the Arrow assignment of the course Talen & Compilers at the University of Utrecht.
+A framework for the Arrow assignment of the course Talen & Compilers at the University of Utrecht. The spec can be found [here](https://github.com/apoorvaanand1998/LnC-2-Arrow/blob/main/2-Arrow.pdf).
 
 ## Alex and Happy
 If you use an up-to-date Cabal, you should be able to simply code in the .x and .y files.
